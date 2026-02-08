@@ -1,0 +1,45 @@
+# Compiled binaries
+bin/
+*.o
+*.out
+*.exe
+
+# Build files
+*.a
+*.so
+*.dylib
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# VSCode
+.vscode/
+
+# Image data (don't upload all 1000+ images to GitHub)
+data/olympus/*.jpg
+data/olympus/*.png
+
+# Keep the directory structure but not the images
+!data/olympus/.gitkeep
+
+# Feature files
+features/*.csv
+features/*.txt
+
+# Results
+results/*
+!results/.gitkeep
+
+# Temporary files
+*.swp
+*.swo
+*~
+.*.swp
+
+# CMake
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile.bak
