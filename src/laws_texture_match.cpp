@@ -1,9 +1,8 @@
 /*
   Name: Sushma Ramesh, Dina Barua
   Date: February 9, 2026
-  Purpose: Task 2 - RGB histogram-based image matching with histogram intersection
+  Purpose: Extension - Color and Laws texture energy filter matching
 */
-
 #include <opencv2/opencv.hpp>
 #include <cstdio>
 #include <cstring>
@@ -25,11 +24,44 @@ struct ImageMatch {
     }
 };
 
+/*
+  Custom distance for color + Laws texture features
+  First 512 values are color histogram
+  Last 9 values are Laws texture energy
+  Equal weighting: 0.5 color + 0.5 texture
+*/
+float color_laws_distance(const std::vector<float> &feat1, const std::vector<float> &feat2) {
+    if(feat1.size() != 521 || feat2.size() != 521) {
+        return -1.0f;
+    }
+    
+    // Color histogram intersection (first 512 bins)
+    float color_intersection = 0.0f;
+    for(int i = 0; i < 512; i++) {
+        color_intersection += std::min(feat1[i], feat2[i]);
+    }
+    float color_distance = 1.0f - color_intersection;
+    
+    // Laws texture: use Euclidean distance (last 9 values)
+    float texture_distance = 0.0f;
+    for(int i = 512; i < 521; i++) {
+        float diff = feat1[i] - feat2[i];
+        texture_distance += diff * diff;
+    }
+    texture_distance = std::sqrt(texture_distance);
+    
+    // Normalize texture distance to [0,1] range (max possible is sqrt(9) = 3)
+    texture_distance /= 3.0f;
+    
+    // Equal weighting
+    return 0.5f * color_distance + 0.5f * texture_distance;
+}
+
 int main(int argc, char *argv[]) {
     // Check arguments
     if(argc < 4) {
         printf("Usage: %s <target_image> <image_directory> <num_matches>\n", argv[0]);
-        printf("Example: ./histogram_match data/olympus/pic.0164.jpg data/olympus 5\n");
+        printf("Example: ./laws_texture_match data/olympus/pic.0535.jpg data/olympus 5\n");
         return -1;
     }
     
@@ -44,12 +76,12 @@ int main(int argc, char *argv[]) {
         return -1;
     }
     
-    // Extract histogram features from target
+    // Extract color + Laws texture features from target
     std::vector<float> target_features;
-    histogram_feature(target, target_features);
+    color_laws_texture_feature(target, target_features);
     
     printf("Target image: %s\n", target_filename);
-    printf("Feature vector size: %lu\n", target_features.size());
+    printf("Feature vector size: %lu (512 color + 9 Laws texture)\n", target_features.size());
     
     // Open directory
     DIR *dirp = opendir(directory);
@@ -82,12 +114,12 @@ int main(int argc, char *argv[]) {
                 continue;
             }
             
-            // Extract histogram features
+            // Extract color + Laws texture features
             std::vector<float> features;
-            histogram_feature(img, features);
+            color_laws_texture_feature(img, features);
             
-            // Calculate histogram intersection distance
-            float distance = histogram_intersection_distance(target_features, features);
+            // Calculate combined distance
+            float distance = color_laws_distance(target_features, features);
             
             // Store match
             ImageMatch match;
@@ -102,7 +134,7 @@ int main(int argc, char *argv[]) {
     std::sort(matches.begin(), matches.end());
     
     // Print top N matches
-    printf("\nTop %d matches:\n", num_matches);
+    printf("\nTop %d matches (Color + Laws Texture):\n", num_matches);
     for(int i = 0; i < num_matches && i < matches.size(); i++) {
         printf("%d. %s (distance: %.6f)\n", i+1, matches[i].filename.c_str(), matches[i].distance);
     }

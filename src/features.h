@@ -1,5 +1,7 @@
 /*
-  Feature extraction functions for image matching
+  Name: Sushma Ramesh, Dina Barua
+  Date: February 9, 2026
+  Purpose: Header file declaring feature extraction function prototypes for CBIR system
 */
 
 #ifndef FEATURES_H
@@ -48,5 +50,17 @@ int gradient_magnitude_histogram(cv::Mat &src, std::vector<float> &feature);
   Total: 528 features
 */
 int color_texture_feature(cv::Mat &src, std::vector<float> &feature);
+/*
+  Compute Laws texture energy features
+  Uses 9 texture energy measures from Laws filters
+  Returns a 9-dimensional feature vector
+*/
+int laws_texture_feature(cv::Mat &src, std::vector<float> &feature);
 
+/*
+  Compute combined color + Laws texture feature
+  Concatenates RGB histogram (512 bins) + Laws texture (9 values)
+  Total: 521 features
+*/
+int color_laws_texture_feature(cv::Mat &src, std::vector<float> &feature);
 #endif

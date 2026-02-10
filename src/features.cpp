@@ -1,7 +1,8 @@
 /*
-  Feature extraction implementations
+  Name: Sushma Ramesh, Dina Barua
+  Date: February 9, 2026
+  Purpose: Implementation of feature extraction functions including baseline, histograms, and texture features
 */
-
 #include "features.h"
 #include <opencv2/opencv.hpp>
 #include <vector>
@@ -272,6 +273,140 @@ int color_texture_feature(cv::Mat &src, std::vector<float> &feature) {
     // Concatenate: color + texture
     feature.insert(feature.end(), color_hist.begin(), color_hist.end());
     feature.insert(feature.end(), texture_hist.begin(), texture_hist.end());
+    
+    return 0;
+}
+
+/*
+  Apply 1D convolution (horizontal or vertical)
+  FIXED VERSION - handles both uchar and float Mat types
+*/
+void convolve1D(cv::Mat &src, cv::Mat &dst, const std::vector<int> &kernel, bool horizontal) {
+    int ksize = kernel.size();
+    int offset = ksize / 2;
+    
+    dst = cv::Mat::zeros(src.size(), CV_32F);
+    
+    for(int i = offset; i < src.rows - offset; i++) {
+        for(int j = offset; j < src.cols - offset; j++) {
+            float sum = 0.0f;
+            
+            if(horizontal) {
+                for(int k = 0; k < ksize; k++) {
+                    // FIXED: Check Mat type before accessing
+                    if(src.type() == CV_32F) {
+                        sum += src.at<float>(i, j - offset + k) * kernel[k];
+                    } else {
+                        sum += (float)src.at<uchar>(i, j - offset + k) * kernel[k];
+                    }
+                }
+            } else {
+                for(int k = 0; k < ksize; k++) {
+                    // FIXED: Check Mat type before accessing
+                    if(src.type() == CV_32F) {
+                        sum += src.at<float>(i - offset + k, j) * kernel[k];
+                    } else {
+                        sum += (float)src.at<uchar>(i - offset + k, j) * kernel[k];
+                    }
+                }
+            }
+            
+            dst.at<float>(i, j) = sum;
+        }
+    }
+}
+
+/*
+  Compute Laws texture energy features
+  Uses 9 texture energy measures from Laws filters
+  Returns a 9-dimensional feature vector
+*/
+/*
+  Compute Laws texture energy features (OPTIMIZED VERSION)
+  Uses 9 texture energy measures from Laws filters
+  Returns a 9-dimensional feature vector
+*/
+int laws_texture_feature(cv::Mat &src, std::vector<float> &feature) {
+    feature.clear();
+    
+    // Convert to grayscale
+    cv::Mat gray;
+    if(src.channels() == 3) {
+        cv::cvtColor(src, gray, cv::COLOR_BGR2GRAY);
+    } else {
+        gray = src.clone();
+    }
+    
+    // Convert to float for filtering
+    cv::Mat gray_float;
+    gray.convertTo(gray_float, CV_32F);
+    
+    // Define 1D Laws kernels
+    float L5_data[] = {1, 4, 6, 4, 1};
+    float E5_data[] = {-1, -2, 0, 2, 1};
+    float S5_data[] = {-1, 0, 2, 0, -1};
+    
+    cv::Mat L5(1, 5, CV_32F, L5_data);
+    cv::Mat E5(1, 5, CV_32F, E5_data);
+    cv::Mat S5(1, 5, CV_32F, S5_data);
+    
+    std::vector<cv::Mat> kernels_h = {L5, E5, S5};
+    std::vector<cv::Mat> kernels_v = {L5.t(), E5.t(), S5.t()};  // Transpose for vertical
+    
+    // Apply all 9 filter combinations using separable filters
+    for(int i = 0; i < 3; i++) {
+        for(int j = 0; j < 3; j++) {
+            cv::Mat temp, result;
+            
+            // Apply horizontal filter
+            cv::filter2D(gray_float, temp, CV_32F, kernels_h[j]);
+            
+            // Apply vertical filter
+            cv::filter2D(temp, result, CV_32F, kernels_v[i]);
+            
+            // Compute energy (mean absolute value)
+            cv::Mat abs_result;
+            abs_result = cv::abs(result);
+            cv::Scalar mean_energy = cv::mean(abs_result);
+            
+            feature.push_back(mean_energy[0]);
+        }
+    }
+    
+    // Normalize features by dividing by the sum
+    float sum = 0.0f;
+    for(float val : feature) {
+        sum += val;
+    }
+    
+    if(sum > 0) {
+        for(int i = 0; i < feature.size(); i++) {
+            feature[i] /= sum;
+        }
+    }
+    
+    return 0;
+}
+
+/*
+  Compute combined color + Laws texture feature
+  Concatenates RGB histogram (512 bins) + Laws texture (9 values)
+  Total: 521 features
+*/
+int color_laws_texture_feature(cv::Mat &src, std::vector<float> &feature) {
+    feature.clear();
+    
+    // Compute RGB color histogram (512 bins)
+    std::vector<float> color_hist;
+    histogram_feature(src, color_hist);
+    
+    // Compute Laws texture features (9 values)
+    std::vector<float> laws_features;
+    laws_texture_feature(src, laws_features);
+    
+    // Concatenate: color + texture
+    feature.insert(feature.end(), color_hist.begin(), color_hist.end());
+    feature.insert(feature.end(), laws_features.begin(), laws_features.end());
     
     return 0;
 }

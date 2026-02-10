@@ -1,7 +1,7 @@
 /*
-Bruce A. Maxwell
-CS 5330 Computer Vision
-CPP functions for reading CSV files with a specific format
+  Name: Bruce A. Maxwell (original), Modified by Sushma Ramesh, Dina Barua
+  Date: February 9, 2026
+  Purpose: Implementation of CSV file utilities for storing and reading feature vectors
 */
 
 #include <cstdio>

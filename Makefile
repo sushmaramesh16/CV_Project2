@@ -14,7 +14,7 @@ BIN_DIR = bin
 # Create bin directory if it doesn't exist
 $(shell mkdir -p $(BIN_DIR))
 
-all: baseline_match histogram_match histogram_match_hsv multi_histogram_match color_texture_match
+all: baseline_match histogram_match histogram_match_hsv multi_histogram_match color_texture_match laws_texture_match
 
 baseline_match: $(SRC_DIR)/baseline_match.cpp $(SRC_DIR)/features.cpp $(SRC_DIR)/csv_util.cpp
 	$(CXX) $(CXXFLAGS) -o $(BIN_DIR)/baseline_match $(SRC_DIR)/baseline_match.cpp $(SRC_DIR)/features.cpp $(SRC_DIR)/csv_util.cpp $(OPENCV)
@@ -30,6 +30,9 @@ multi_histogram_match: $(SRC_DIR)/multi_histogram_match.cpp $(SRC_DIR)/features.
 
 color_texture_match: $(SRC_DIR)/color_texture_match.cpp $(SRC_DIR)/features.cpp $(SRC_DIR)/distance.cpp $(SRC_DIR)/csv_util.cpp
 	$(CXX) $(CXXFLAGS) -o $(BIN_DIR)/color_texture_match $(SRC_DIR)/color_texture_match.cpp $(SRC_DIR)/features.cpp $(SRC_DIR)/distance.cpp $(SRC_DIR)/csv_util.cpp $(OPENCV)
+
+laws_texture_match: $(SRC_DIR)/laws_texture_match.cpp $(SRC_DIR)/features.cpp $(SRC_DIR)/distance.cpp $(SRC_DIR)/csv_util.cpp
+	$(CXX) $(CXXFLAGS) -o $(BIN_DIR)/laws_texture_match $(SRC_DIR)/laws_texture_match.cpp $(SRC_DIR)/features.cpp $(SRC_DIR)/distance.cpp $(SRC_DIR)/csv_util.cpp $(OPENCV)
 
 clean:
 	rm -f $(BIN_DIR)/*

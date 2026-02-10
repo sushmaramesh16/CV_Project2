@@ -1,5 +1,7 @@
 /*
-  Distance metrics for image matching
+  Name: Sushma Ramesh, Dina Barua
+  Date: February 9, 2026
+  Purpose: Header file declaring distance metric function prototypes
 */
 
 #ifndef DISTANCE_H

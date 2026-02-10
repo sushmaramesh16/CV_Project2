@@ -1,6 +1,7 @@
 /*
-  Bruce A. Maxwell
-  Utility functions for reading and writing CSV files with a specific format
+  Name: Bruce A. Maxwell (original), Modified by Sushma Ramesh, Dina Barua
+  Date: February 9, 2026
+  Purpose: Header file for CSV file reading and writing utilities
 */
 
 #ifndef CSV_UTIL_H

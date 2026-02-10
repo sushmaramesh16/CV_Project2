@@ -1,5 +1,7 @@
 /*
-  Distance metric implementations
+  Name: Sushma Ramesh, Dina Barua
+  Date: February 9, 2026
+  Purpose: Implementation of distance metrics including SSD, histogram intersection, and combined distances
 */
 
 #include "distance.h"
