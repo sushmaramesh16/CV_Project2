@@ -1,6 +1,6 @@
 # -----------------------------
 # CV Project 2 - Makefile
-# Builds Tasks 1-4 + Task 5 + Task 7
+# Builds Tasks 1-4 + Extension + Task 5 + Task 7
 # -----------------------------
 
 CXX      = g++
@@ -18,7 +18,7 @@ $(shell mkdir -p $(BIN_DIR))
 # -----------------------------
 # Programs to build (binaries go into bin/)
 # -----------------------------
-ALL_PROGS = baseline_match histogram_match histogram_match_hsv multi_histogram_match color_texture_match task5_dnn task7_custom
+ALL_PROGS = baseline_match histogram_match histogram_match_hsv multi_histogram_match color_texture_match laws_texture_match task5_dnn task7_custom
 
 all: $(ALL_PROGS)
 
@@ -39,6 +39,12 @@ multi_histogram_match: $(SRC_DIR)/multi_histogram_match.cpp $(SRC_DIR)/features.
 
 color_texture_match: $(SRC_DIR)/color_texture_match.cpp $(SRC_DIR)/features.cpp $(SRC_DIR)/distance.cpp $(SRC_DIR)/csv_util.cpp
 	$(CXX) $(CXXFLAGS) -o $(BIN_DIR)/color_texture_match $^ $(OPENCV)
+
+# -----------------------------
+# Extension: Laws Texture
+# -----------------------------
+laws_texture_match: $(SRC_DIR)/laws_texture_match.cpp $(SRC_DIR)/features.cpp $(SRC_DIR)/distance.cpp $(SRC_DIR)/csv_util.cpp
+	$(CXX) $(CXXFLAGS) -o $(BIN_DIR)/laws_texture_match $^ $(OPENCV)
 
 # -----------------------------
 # Task 5 binary (ResNet CSV matcher)

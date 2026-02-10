@@ -1,8 +1,7 @@
 /*
-  Color + Texture histogram image matching
-  Combines RGB color histogram + Sobel gradient magnitude histogram
-  
-  Usage: ./color_texture_match <target_image> <image_directory> <num_matches>
+  Name: Sushma Ramesh, Dina Barua
+  Date: February 9, 2026
+  Purpose: Task 4 - Combined color and texture matching using RGB histogram and Sobel gradients
 */
 
 #include <opencv2/opencv.hpp>

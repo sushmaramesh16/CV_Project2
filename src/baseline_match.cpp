@@ -1,7 +1,7 @@
 /*
-  Baseline image matching using 7x7 center square and SSD distance
-  
-  Usage: ./baseline_match <target_image> <image_directory> <num_matches>
+  Name: Sushma Ramesh, Dina Barua
+  Date: February 9, 2026
+  Purpose: Task 1 - Baseline image matching using 7x7 center square and SSD distance
 */
 
 #include <opencv2/opencv.hpp>

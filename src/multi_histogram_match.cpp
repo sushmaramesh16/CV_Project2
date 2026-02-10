@@ -1,8 +1,7 @@
 /*
-  Multi-histogram image matching
-  Uses top half + bottom half histograms with weighted combination
-  
-  Usage: ./multi_histogram_match <target_image> <image_directory> <num_matches>
+  Name: Sushma Ramesh, Dina Barua
+  Date: February 9, 2026
+  Purpose: Task 3 - Multi-histogram matching using spatial layout (top/bottom halves)
 */
 
 #include <opencv2/opencv.hpp>
