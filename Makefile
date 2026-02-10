@@ -1,67 +1,60 @@
-# -----------------------------
-# CV Project 2 - Makefile
-# Builds Tasks 1-4 + Extension + Task 5 + Task 7
-# -----------------------------
+# Compiler and flags
+CXX = g++
+CXXFLAGS = -std=c++17 -Wall -g `pkg-config --cflags opencv4`
+LDFLAGS = `pkg-config --libs opencv4`
 
-CXX      = g++
-CXXFLAGS = -std=c++11 -Wall
+# Target directory
+BINDIR = bin
 
-# OpenCV flags (Homebrew on Mac usually uses opencv4)
-OPENCV = `pkg-config --cflags --libs opencv4`
+# Create bin directory if it doesn't exist
+$(shell mkdir -p $(BINDIR))
 
-SRC_DIR = src
-BIN_DIR = bin
+# All targets
+all: baseline_match histogram_match histogram_match_hsv multi_histogram_match \
+     color_texture_match laws_texture_match gabor_texture_match task2_custom
 
-# Make sure bin/ exists
-$(shell mkdir -p $(BIN_DIR))
+# Baseline matching
+baseline_match: src/baseline_match.cpp src/features.cpp src/distance.cpp src/csv_util.cpp
+	$(CXX) $(CXXFLAGS) -o $(BINDIR)/baseline_match \
+		src/baseline_match.cpp src/features.cpp src/distance.cpp src/csv_util.cpp $(LDFLAGS)
 
-# -----------------------------
-# Programs to build (binaries go into bin/)
-# -----------------------------
-ALL_PROGS = baseline_match histogram_match histogram_match_hsv multi_histogram_match color_texture_match laws_texture_match task5_dnn task7_custom
+# RGB histogram matching
+histogram_match: src/histogram_match.cpp src/features.cpp src/distance.cpp src/csv_util.cpp
+	$(CXX) $(CXXFLAGS) -o $(BINDIR)/histogram_match \
+		src/histogram_match.cpp src/features.cpp src/distance.cpp src/csv_util.cpp $(LDFLAGS)
 
-all: $(ALL_PROGS)
+# HSV histogram matching
+histogram_match_hsv: src/histogram_match_hsv.cpp src/features.cpp src/distance.cpp src/csv_util.cpp
+	$(CXX) $(CXXFLAGS) -o $(BINDIR)/histogram_match_hsv \
+		src/histogram_match_hsv.cpp src/features.cpp src/distance.cpp src/csv_util.cpp $(LDFLAGS)
 
-# -----------------------------
-# Task 1-4 binaries
-# -----------------------------
-baseline_match: $(SRC_DIR)/baseline_match.cpp $(SRC_DIR)/features.cpp $(SRC_DIR)/csv_util.cpp
-	$(CXX) $(CXXFLAGS) -o $(BIN_DIR)/baseline_match $^ $(OPENCV)
+# Multi-histogram matching
+multi_histogram_match: src/multi_histogram_match.cpp src/features.cpp src/distance.cpp src/csv_util.cpp
+	$(CXX) $(CXXFLAGS) -o $(BINDIR)/multi_histogram_match \
+		src/multi_histogram_match.cpp src/features.cpp src/distance.cpp src/csv_util.cpp $(LDFLAGS)
 
-histogram_match: $(SRC_DIR)/histogram_match.cpp $(SRC_DIR)/features.cpp $(SRC_DIR)/distance.cpp $(SRC_DIR)/csv_util.cpp
-	$(CXX) $(CXXFLAGS) -o $(BIN_DIR)/histogram_match $^ $(OPENCV)
+# Color + texture matching
+color_texture_match: src/color_texture_match.cpp src/features.cpp src/distance.cpp src/csv_util.cpp
+	$(CXX) $(CXXFLAGS) -o $(BINDIR)/color_texture_match \
+		src/color_texture_match.cpp src/features.cpp src/distance.cpp src/csv_util.cpp $(LDFLAGS)
 
-histogram_match_hsv: $(SRC_DIR)/histogram_match_hsv.cpp $(SRC_DIR)/features.cpp $(SRC_DIR)/distance.cpp $(SRC_DIR)/csv_util.cpp
-	$(CXX) $(CXXFLAGS) -o $(BIN_DIR)/histogram_match_hsv $^ $(OPENCV)
+# Laws texture matching (Extension 1)
+laws_texture_match: src/laws_texture_match.cpp src/features.cpp src/distance.cpp src/csv_util.cpp
+	$(CXX) $(CXXFLAGS) -o $(BINDIR)/laws_texture_match \
+		src/laws_texture_match.cpp src/features.cpp src/distance.cpp src/csv_util.cpp $(LDFLAGS)
 
-multi_histogram_match: $(SRC_DIR)/multi_histogram_match.cpp $(SRC_DIR)/features.cpp $(SRC_DIR)/distance.cpp $(SRC_DIR)/csv_util.cpp
-	$(CXX) $(CXXFLAGS) -o $(BIN_DIR)/multi_histogram_match $^ $(OPENCV)
+# Gabor texture matching (Extension 2)
+gabor_texture_match: src/gabor_texture_match.cpp src/features.cpp src/distance.cpp src/csv_util.cpp
+	$(CXX) $(CXXFLAGS) -o $(BINDIR)/gabor_texture_match \
+		src/gabor_texture_match.cpp src/features.cpp src/distance.cpp src/csv_util.cpp $(LDFLAGS)
 
-color_texture_match: $(SRC_DIR)/color_texture_match.cpp $(SRC_DIR)/features.cpp $(SRC_DIR)/distance.cpp $(SRC_DIR)/csv_util.cpp
-	$(CXX) $(CXXFLAGS) -o $(BIN_DIR)/color_texture_match $^ $(OPENCV)
+# Custom task
+task2_custom: src/task2_custom.cpp src/features.cpp src/distance.cpp src/csv_util.cpp
+	$(CXX) $(CXXFLAGS) -o $(BINDIR)/task2_custom \
+		src/task2_custom.cpp src/features.cpp src/distance.cpp src/csv_util.cpp $(LDFLAGS)
 
-# -----------------------------
-# Extension: Laws Texture
-# -----------------------------
-laws_texture_match: $(SRC_DIR)/laws_texture_match.cpp $(SRC_DIR)/features.cpp $(SRC_DIR)/distance.cpp $(SRC_DIR)/csv_util.cpp
-	$(CXX) $(CXXFLAGS) -o $(BIN_DIR)/laws_texture_match $^ $(OPENCV)
-
-# -----------------------------
-# Task 5 binary (ResNet CSV matcher)
-# -----------------------------
-task5_dnn: $(SRC_DIR)/task5_dnn.cpp
-	$(CXX) $(CXXFLAGS) -o $(BIN_DIR)/task5_dnn $^ $(OPENCV)
-
-# -----------------------------
-# Task 7 binary (Custom CBIR: DNN + HSV + Edges)
-# -----------------------------
-task7_custom: $(SRC_DIR)/task7_custom.cpp
-	$(CXX) $(CXXFLAGS) -o $(BIN_DIR)/task7_custom $^ $(OPENCV)
-
-# -----------------------------
 # Clean
-# -----------------------------
 clean:
-	rm -f $(BIN_DIR)/*
+	rm -f $(BINDIR)/*
 
-.PHONY: all clean $(ALL_PROGS)
+.PHONY: all clean

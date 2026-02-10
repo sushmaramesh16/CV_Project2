@@ -317,11 +317,6 @@ void convolve1D(cv::Mat &src, cv::Mat &dst, const std::vector<int> &kernel, bool
 }
 
 /*
-  Compute Laws texture energy features
-  Uses 9 texture energy measures from Laws filters
-  Returns a 9-dimensional feature vector
-*/
-/*
   Compute Laws texture energy features (OPTIMIZED VERSION)
   Uses 9 texture energy measures from Laws filters
   Returns a 9-dimensional feature vector
@@ -409,4 +404,109 @@ int color_laws_texture_feature(cv::Mat &src, std::vector<float> &feature) {
     feature.insert(feature.end(), laws_features.begin(), laws_features.end());
     
     return 0;
+}
+
+/**
+ * Compute Gabor texture features
+ * Returns 12-dimensional feature vector: 3 scales × 4 orientations
+ */
+std::vector<float> computeGaborFeatures(const cv::Mat& src) {
+    std::vector<float> features;
+    cv::Mat gray;
+    
+    // Convert to grayscale
+    if (src.channels() == 3) {
+        cv::cvtColor(src, gray, cv::COLOR_BGR2GRAY);
+    } else {
+        gray = src.clone();
+    }
+    
+    // Normalize to float
+    gray.convertTo(gray, CV_32F, 1.0/255.0);
+    
+    // Gabor parameters
+    int ksize = 21;          // Kernel size
+    double sigma = 5.0;      // Gaussian envelope std dev
+    double gamma = 0.5;      // Aspect ratio
+    
+    // 3 scales (wavelengths)
+    std::vector<double> lambdas = {4.0, 8.0, 16.0};
+    
+    // 4 orientations
+    std::vector<double> thetas = {0, CV_PI/4, CV_PI/2, 3*CV_PI/4};
+    
+    // Compute Gabor responses for each scale and orientation
+    for (double lambda : lambdas) {
+        for (double theta : thetas) {
+            // Get Gabor kernel
+            cv::Mat kernel = cv::getGaborKernel(
+                cv::Size(ksize, ksize), 
+                sigma, 
+                theta, 
+                lambda, 
+                gamma, 
+                0,           // psi (phase offset)
+                CV_32F
+            );
+            
+            // Apply filter
+            cv::Mat filtered;
+            cv::filter2D(gray, filtered, CV_32F, kernel);
+            
+            // Compute mean absolute response as feature
+            cv::Scalar meanVal = cv::mean(cv::abs(filtered));
+            features.push_back(meanVal[0]);
+        }
+    }
+    
+    return features;  // 12-dimensional vector
+}
+
+/**
+ * Compute combined Color + Gabor features
+ * Returns: RGB histogram (512) + Gabor (12) = 524 dimensions
+ */
+std::vector<float> computeColorGaborFeatures(const cv::Mat& src) {
+    std::vector<float> combined;
+    
+    // 1. RGB Histogram (512 bins: 8×8×8)
+    std::vector<float> rgbHist;
+    histogram_feature(const_cast<cv::Mat&>(src), rgbHist);
+    combined.insert(combined.end(), rgbHist.begin(), rgbHist.end());
+    
+    // 2. Gabor texture features (12 features)
+    std::vector<float> gaborFeats = computeGaborFeatures(src);
+    combined.insert(combined.end(), gaborFeats.begin(), gaborFeats.end());
+    
+    return combined;  // 524-dimensional
+}
+
+/**
+ * Distance metric for Color+Gabor features
+ * Uses histogram intersection for color, normalized L2 for Gabor
+ */
+float colorGaborDistance(const std::vector<float>& f1, const std::vector<float>& f2) {
+    // Split features
+    std::vector<float> color1(f1.begin(), f1.begin() + 512);
+    std::vector<float> color2(f2.begin(), f2.begin() + 512);
+    std::vector<float> gabor1(f1.begin() + 512, f1.end());
+    std::vector<float> gabor2(f2.begin() + 512, f2.end());
+    
+    // Color distance: histogram intersection
+    float intersection = 0.0;
+    for (size_t i = 0; i < 512; i++) {
+        intersection += std::min(color1[i], color2[i]);
+    }
+    float colorDist = 1.0 - intersection;
+    
+    // Gabor distance: normalized Euclidean
+    float gaborDist = 0.0;
+    for (size_t i = 0; i < gabor1.size(); i++) {
+        float diff = gabor1[i] - gabor2[i];
+        gaborDist += diff * diff;
+    }
+    gaborDist = std::sqrt(gaborDist) / std::sqrt(12.0);  // Normalize by dimension
+    
+    // Weighted combination (equal weights)
+    return 0.5 * colorDist + 0.5 * gaborDist;
 }

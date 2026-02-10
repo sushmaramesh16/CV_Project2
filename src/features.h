@@ -63,4 +63,9 @@ int laws_texture_feature(cv::Mat &src, std::vector<float> &feature);
   Total: 521 features
 */
 int color_laws_texture_feature(cv::Mat &src, std::vector<float> &feature);
+
+// Gabor texture features (Extension 2)
+std::vector<float> computeGaborFeatures(const cv::Mat& src);
+std::vector<float> computeColorGaborFeatures(const cv::Mat& src);
+float colorGaborDistance(const std::vector<float>& f1, const std::vector<float>& f2);
 #endif
