@@ -1,6 +1,6 @@
 /*
 Project 2 - Task 5: Deep Network Embeddings (ResNet18)
-Name(s):Dina Barua and Sushma Ravichandar
+Name(s):Dina Barua and Sushma Ramesh
 Date: 02.07.2026
 
 Description: Task 5 uses precomputed ResNet18 feature vectors from a CSV file and 

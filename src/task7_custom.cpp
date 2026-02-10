@@ -1,6 +1,6 @@
 /*
   Task 7 - My Custom Image Matcher
-  Name(s):Dina Barua and Sushma Ravichandar
+  Name(s):Dina Barua and Sushma Ramesh
   Date: 02.07.2026
 
   Description:Task 7 implements a custom image retrieval system that
